@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CARTELLE — Your World. Your Cart.</title>
+  
+  <!-- Google Fonts: Inter & Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandNavy: '#0F172A',
+            brandNavyLight: '#1E293B',
+            brandBlue: '#1E3A8A',
+            brandCrimson: '#DC2626',
+            brandCrimsonHover: '#B91C1C',
+            canvasBg: '#F8FAFC',
+            surfaceWhite: '#FFFFFF',
+            borderSubtle: '#E2E8F0',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #0F172A;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Clean, unobtrusive scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-canvasBg text-slate-800 antialiased selection:bg-brandCrimson selection:text-white">
+
+  <!-- TOP ANNOUNCEMENT BAR -->
+  <div class="bg-brandNavy text-slate-200 text-xs py-2.5 px-4 text-center font-medium tracking-wide">
+    <div class="max-w-7xl mx-auto flex items-center justify-center sm:justify-between">
+      <span class="hidden sm:inline">Complimentary express shipping across India on orders above ₹999</span>
+      <div class="flex items-center gap-3">
+        <span>Seasonal Promotion: Use code <strong class="text-white underline decoration-brandCrimson underline-offset-4">SAVE200</strong> at checkout</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN NAVIGATION HEADER -->
+  <header class="sticky top-0 z-40 bg-white border-b border-borderSubtle shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20 gap-4 sm:gap-8">
+        
+        <!-- Brand Identity -->
+        <a href="#" onclick="app.resetFilters(); return false;" class="flex items-center gap-2.5 shrink-0 group">
+          <div class="w-10 h-10 rounded-lg bg-brandNavy text-white flex items-center justify-center font-serif text-xl font-bold tracking-tight shadow-sm group-hover:bg-brandCrimson transition-colors">
+            C
+          </div>
+          <div>
+            <span class="font-serif text-2xl font-bold tracking-tight text-brandNavy">CARTELLE</span>
+            <span class="text-[10px] uppercase tracking-widest text-slate-400 block -mt-1 font-sans font-semibold">Your World. Your Cart.</span>
+          </div>
+        </a>
+
+        <!-- Global Search Input -->
+        <div class="flex-1 max-w-xl hidden md:block">
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </span>
+            <input 
+              type="text" 
+              id="globalSearchInput" 
+              placeholder="Search products, categories, or keywords..." 
+              class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-borderSubtle rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-brandNavy focus:ring-1 focus:ring-brandNavy transition"
+              oninput="app.handleSearch(this.value)"
+            />
+          </div>
+        </div>
+
+        <!-- Header Actions: Order Tracking & Cart Drawer -->
+        <div class="flex items-center gap-3">
+          
+          <!-- Orders Tracking Modal Trigger -->
+          <button 
+            onclick="app.openOrdersModal()"
+            class="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 hover:text-brandNavy rounded-lg hover:bg-slate-100 transition"
+            title="View placed orders and real-time delivery status"
+          >
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <span class="hidden sm:inline">Track Orders</span>
+            <span id="headerOrdersCount" class="hidden px-1.5 py-0.2 bg-slate-200 text-slate-700 text-[10px] rounded-full font-semibold">0</span>
+          </button>
+
+          <!-- Shopping Bag Button -->
+          <button 
+            id="cartDrawerBtn"
+            onclick="app.openCartDrawer()"
+            class="relative flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-brandNavy text-white hover:bg-brandNavyLight active:scale-[0.98] transition shadow-sm font-medium text-sm"
+          >
+            <svg class="w-4 h-4 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Bag</span>
+            <span 
+              id="cartBadgeCount"
+              class="px-2 py-0.5 text-xs font-semibold bg-brandCrimson text-white rounded-full transition-transform"
+            >0</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Mobile Search Bar -->
+      <div class="pb-3 md:hidden">
+        <input 
+          type="text" 
+          placeholder="Search products or categories..." 
+          class="w-full px-3.5 py-2 bg-slate-50 border border-borderSubtle rounded-lg text-sm text-slate-900 placeholder-slate-400"
+          oninput="app.handleSearch(this.value)"
+        />
+      </div>
+    </div>
+  </header>
+
+  <!-- SECONDARY FILTER & SORTING BAR -->
+  <div class="bg-white border-b border-borderSubtle sticky top-20 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Category Filter Pills -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0" id="categoryPillContainer">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Sorting Options Selector -->
+      <div class="flex items-center gap-2 ml-auto">
+        <label for="sortSelector" class="text-xs text-slate-500 font-medium whitespace-nowrap">Sort by:</label>
+        <select 
+          id="sortSelector" 
+          onchange="app.handleSortChange(this.value)"
+          class="bg-white border border-borderSubtle text-slate-700 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-brandNavy transition font-medium cursor-pointer"
+        >
+          <option value="DEFAULT">Featured</option>
+          <option value="PRICE_ASC">Price: Low to High</option>
+          <option value="PRICE_DESC">Price: High to Low</option>
+          <option value="RATING_DESC">Highest Customer Rating</option>
+          <option value="NAME_ASC">Name: A to Z</option>
+          <option value="NAME_DESC">Name: Z to A</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- UNDO LAST ACTION FLOATING NOTIFICATION BANNER -->
+  <div 
+    id="undoFloatingBanner" 
+    class="hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 bg-brandNavy text-white px-5 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-4 text-sm animate-fade-in"
+  >
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span id="undoBannerText" class="text-slate-200 text-xs sm:text-sm">Action updated</span>
+    </div>
+    <button 
+      onclick="app.undoLastAction()" 
+      class="px-3 py-1 rounded bg-brandCrimson hover:bg-brandCrimsonHover text-white text-xs font-semibold transition"
+    >
+      Undo Last Action
+    </button>
+    <button 
+      onclick="app.dismissUndoBanner()" 
+      class="text-slate-400 hover:text-white text-xs ml-1"
+      title="Dismiss"
+    >
+      ✕
+    </button>
+  </div>
+
+  <!-- MAIN CATALOG & CONTENT -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Hero / Store Editorial Banner -->
+    <div class="relative bg-gradient-to-r from-slate-900 via-brandNavy to-slate-800 rounded-2xl p-8 sm:p-12 mb-10 text-white overflow-hidden shadow-sm">
+      <div class="max-w-xl relative z-10">
+        <span class="text-xs uppercase tracking-widest text-slate-300 font-semibold mb-2 block">Your World. Your Cart.</span>
+        <h1 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
+          Crafted for high performance and daily precision.
+        </h1>
+        <p class="mt-3 text-sm sm:text-base text-slate-300 font-normal leading-relaxed">
+          Explore studio-grade headphones, ergonomic mechanical keyboards, high-speed NVMe storage, and workplace accessories backed by guaranteed warranty.
+        </p>
+      </div>
+      <div class="absolute -right-8 -bottom-16 w-80 h-80 rounded-full bg-blue-600/10 pointer-events-none blur-3xl"></div>
+    </div>
+
+    <!-- Catalog Status & Filter Details -->
+    <div class="flex items-center justify-between pb-4 mb-6 border-b border-borderSubtle">
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-bold text-slate-900 font-serif">Product Collection</h2>
+        <span id="catalogCountBadge" class="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+          12 products
+        </span>
+      </div>
+      <span id="activeSearchQueryIndicator" class="hidden text-xs text-slate-500">
+        Results for: "<strong id="searchQueryText" class="text-slate-800"></strong>"
+        <button onclick="app.resetFilters()" class="text-brandCrimson hover:underline ml-1 font-medium">Clear</button>
+      </span>
+    </div>
+
+    <!-- PRODUCT CATALOG GRID -->
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Generated dynamically by ECommerceApp -->
+    </div>
+
+    <!-- Empty Results State -->
+    <div id="emptyCatalogState" class="hidden flex-col items-center justify-center py-20 text-center">
+      <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-4">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-slate-800">No matching products found</h3>
+      <p class="text-sm text-slate-500 mt-1 max-w-sm">We couldn't find anything matching your search criteria. Try checking your spelling or clear category filters.</p>
+      <button onclick="app.resetFilters()" class="mt-4 px-4 py-2 bg-brandNavy hover:bg-brandNavyLight text-white text-xs font-semibold rounded-lg transition">
+        Reset Search & Filters
+      </button>
+    </div>
+
+  </main>
+
+  <!-- CART DRAWER (MODAL SLIDE-IN) -->
+  <div 
+    id="cartDrawerOverlay" 
+    class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden transition-opacity duration-300"
+    onclick="app.closeCartDrawer(event)"
+  >
+    <div 
+      id="cartDrawerPanel" 
+      class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-out"
+      onclick="event.stopPropagation()"
+    >
+      <!-- Cart Header -->
+      <div class="p-5 border-b border-borderSubtle flex items-center justify-between bg-white">
+        <div>
+          <h3 class="text-lg font-serif font-bold text-slate-900">Shopping Bag</h3>
+          <p class="text-xs text-slate-500 font-medium mt-0.5" id="cartItemSubtitle">0 items</p>
+        </div>
+        <button 
+          onclick="app.closeCartDrawer()" 
+          class="p-2 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Undo Action Notification inside Drawer -->
+      <div id="drawerUndoBanner" class="hidden bg-slate-50 border-b border-borderSubtle px-4 py-2.5 text-xs flex items-center justify-between">
+        <span id="drawerUndoText" class="text-slate-600 truncate mr-2">Item updated</span>
+        <button 
+          onclick="app.undoLastAction()" 
+          class="shrink-0 text-brandCrimson font-semibold hover:underline"
+        >
+          Undo Action
+        </button>
+      </div>
+
+      <!-- Cart Itemized List -->
+      <div id="cartItemList" class="flex-1 overflow-y-auto p-4 space-y-3">
+        <!-- Dynamically rendered -->
+      </div>
+
+      <!-- Empty Cart State -->
+      <div id="cartEmptyState" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+        </div>
+        <h4 class="text-base font-bold text-slate-800 font-serif">Your bag is empty</h4>
+        <p class="text-xs text-slate-500 mt-1 max-w-xs">
+          Discover our curated collection of hardware and audio peripherals and add items to your shopping bag.
+        </p>
+      </div>
+
+      <!-- Bill Breakdown & Checkout -->
+      <div class="p-5 border-t border-borderSubtle bg-slate-50 space-y-3.5">
+        
+        <!-- Coupon Code Input -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <label for="couponInput" class="text-slate-600 font-medium">Promotional Code</label>
+            <span class="text-[11px] text-slate-500">Try <button type="button" onclick="app.applyQuickCoupon('SAVE200')" class="text-brandNavy font-semibold hover:underline">SAVE200</button></span>
+          </div>
+          <div class="flex gap-2">
+            <input 
+              type="text" 
+              id="couponInput" 
+              placeholder="e.g. SAVE200" 
+              class="flex-1 bg-white border border-borderSubtle rounded-lg px-3 py-2 text-xs uppercase text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brandNavy"
+            />
+            <button 
+              onclick="app.applyCoupon()" 
+              class="px-4 py-2 bg-brandNavy hover:bg-brandNavyLight text-white rounded-lg text-xs font-semibold transition"
+            >
+              Apply
+            </button>
+          </div>
+          <p id="couponFeedback" class="text-xs hidden"></p>
+        </div>
+
+        <!-- Billing Summary Table -->
+        <div class="space-y-1.5 text-xs pt-2 border-t border-borderSubtle text-slate-600">
+          <div class="flex justify-between">
+            <span>Subtotal</span>
+            <span id="billSubtotal" class="font-medium text-slate-900">₹0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="flex items-center gap-1">
+              <span>Savings</span>
+              <span id="appliedCouponTag" class="hidden text-[10px] px-1.5 py-0.2 bg-emerald-100 text-emerald-800 rounded font-semibold"></span>
+            </span>
+            <span id="billDiscount" class="text-emerald-600 font-medium">- ₹0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Estimated GST (18%)</span>
+            <span id="billTaxes" class="font-medium text-slate-900">₹0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Standard Shipping</span>
+            <span id="billShipping" class="font-medium text-emerald-600">Complimentary</span>
+          </div>
+          <div class="flex justify-between text-base font-bold text-slate-900 pt-2 border-t border-borderSubtle">
+            <span>Total Payable</span>
+            <span id="billGrandTotal" class="text-brandCrimson">₹0</span>
+          </div>
+        </div>
+
+        <!-- Proceed to Checkout Button -->
+        <button 
+          id="checkoutButton" 
+          onclick="app.initiateCheckout()"
+          disabled
+          class="w-full py-3 px-4 rounded-lg font-medium text-sm bg-brandCrimson hover:bg-brandCrimsonHover text-white shadow-sm active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+        >
+          <span>Proceed to Checkout</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER CONFIRMATION MODAL -->
+  <div 
+    id="checkoutSuccessModal" 
+    class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4"
+  >
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 text-center border border-borderSubtle">
+      <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+
+      <div>
+        <h3 class="font-serif text-2xl font-bold text-slate-900">Order Confirmed!</h3>
+        <p class="text-xs text-slate-500 mt-1">
+          Thank you for choosing CARTELLE. We have received your order and our fulfillment team has begun processing it.
+        </p>
+      </div>
+
+      <!-- Receipt Information -->
+      <div class="bg-slate-50 p-4 rounded-xl border border-borderSubtle text-left space-y-2 text-xs">
+        <div class="flex justify-between">
+          <span class="text-slate-500">Order Reference:</span>
+          <span id="modalOrderId" class="font-semibold text-slate-900">#ORD-1001</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Current Status:</span>
+          <span id="modalOrderStatus" class="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Order Placed</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Total Amount:</span>
+          <span id="modalOrderAmount" class="font-semibold text-slate-900">₹0</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Items:</span>
+          <span id="modalOrderItemsCount" class="text-slate-700">0 items</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 pt-2">
+        <button 
+          onclick="app.closeSuccessModalAndOpenOrders()" 
+          class="flex-1 py-2.5 px-4 rounded-lg text-xs font-semibold bg-brandNavy hover:bg-brandNavyLight text-white transition"
+        >
+          Track Order Status
+        </button>
+        <button 
+          onclick="app.closeSuccessModal()" 
+          class="py-2.5 px-4 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
+        >
+          Continue Shopping
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER TRACKING / HISTORY DRAWER -->
+  <div 
+    id="ordersModalOverlay"
+    class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4"
+    onclick="app.closeOrdersModal(event)"
+  >
+    <div 
+      class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-borderSubtle flex flex-col max-h-[85vh]"
+      onclick="event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between pb-4 border-b border-borderSubtle">
+        <div>
+          <h3 class="font-serif text-xl font-bold text-slate-900">Your Orders & Fulfillment Tracking</h3>
+          <p class="text-xs text-slate-500">Real-time status updates from our dispatch center</p>
+        </div>
+        <button onclick="app.closeOrdersModal()" class="text-slate-400 hover:text-slate-700">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Orders List Container -->
+      <div id="ordersListContainer" class="flex-1 overflow-y-auto py-4 space-y-4">
+        <!-- Rendered via JS -->
+      </div>
+
+      <div class="pt-3 border-t border-borderSubtle flex items-center justify-between text-xs text-slate-500">
+        <span>Fulfillment runs on automated dispatch schedules</span>
+        <button 
+          onclick="app.simulateAdvanceNextOrder()" 
+          class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium transition"
+        >
+          Simulate Next Delivery Step
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBTLE FLOATING TOAST -->
+  <div id="toastNotification" class="fixed top-24 right-5 z-50 max-w-sm pointer-events-none transition-all duration-300 transform translate-x-10 opacity-0">
+    <div class="bg-white border border-borderSubtle text-slate-800 text-xs px-4 py-3 rounded-xl shadow-lg flex items-center gap-3">
+      <span id="toastIcon" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+      <span id="toastMessage" class="font-medium">Notification message</span>
+    </div>
+  </div>
+
+  <!-- STORE FOOTER -->
+  <footer class="mt-auto bg-white border-t border-borderSubtle py-10 px-4 sm:px-6 lg:px-8 text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <div class="w-7 h-7 rounded bg-brandNavy text-white font-serif font-bold flex items-center justify-center text-sm">C</div>
+        <span class="font-serif font-bold text-slate-800 text-sm">CARTELLE</span>
+        <span class="text-slate-400 hidden sm:inline">•</span>
+        <span class="text-slate-500 hidden sm:inline">Your World. Your Cart.</span>
+        <span>•</span>
+        <span>1-Year Warranty Included</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <span>Secure 256-bit Encrypted Checkout</span>
+        <span>•</span>
+        <span>Verified Genuine Products</span>
+      </div>
+      <div>
+        © 2026 CARTELLE Retail Technologies. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT OBJECT-ORIENTED DATA STRUCTURES & CONTROLLER ENGINE             -->
+  <!-- (Strictly under the hood: Linked List, Stack, Queue, Hash Table, Sort)    -->
+  <!-- ========================================================================= -->
+  <script>
+    /**
+     * 1. HASH TABLE IMPLEMENTATION
+     * Polynomial rolling hash with separate chaining for O(1) inventory, product, and coupon lookups.
+     */
+    class HashTable {
+      constructor(size = 16) {
+        this.size = size;
+        this.buckets = new Array(size).fill(null).map(() => []);
+        this.count = 0;
+      }
+
+      _hash(key) {
+        const strKey = String(key);
+        let hash = 0;
+        for (let i = 0; i < strKey.length; i++) {
+          hash = (hash * 31 + strKey.charCodeAt(i)) % this.size;
+        }
+        return Math.abs(hash);
+      }
+
+      set(key, value) {
+        const index = this._hash(key);
+        const bucket = this.buckets[index];
+        const existing = bucket.find(item => item.key === key);
+        if (existing) {
+          existing.value = value;
+        } else {
+          bucket.push({ key, value });
+          this.count++;
+        }
+      }
+
+      get(key) {
+        const index = this._hash(key);
+        const bucket = this.buckets[index];
+        const found = bucket.find(item => item.key === key);
+        return found ? found.value : null;
+      }
+
+      has(key) {
+        return this.get(key) !== null;
+      }
+
+      delete(key) {
+        const index = this._hash(key);
+        const bucket = this.buckets[index];
+        const itemIdx = bucket.findIndex(item => item.key === key);
+        if (itemIdx !== -1) {
+          bucket.splice(itemIdx, 1);
+          this.count--;
+          return true;
+        }
+        return false;
+      }
+    }
+
+    /**
+     * 2. DOUBLY LINKED LIST IMPLEMENTATION (Cart Items Engine)
+     * Manages active cart items using node objects with prev and next references.
+     */
+    class ProductNode {
+      constructor(product, quantity = 1) {
+        this.id = 'node_' + Math.random().toString(36).substring(2, 8);
+        this.product = product;
+        this.quantity = quantity;
+        this.prev = null;
+        this.next = null;
+      }
+
+      get subtotal() {
+        return this.product.price * this.quantity;
+      }
+    }
+
+    class CartDoublyLinkedList {
+      constructor() {
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+      }
+
+      append(product, quantity = 1) {
+        const newNode = new ProductNode(product, quantity);
+        if (!this.head) {
+          this.head = newNode;
+          this.tail = newNode;
+        } else {
+          this.tail.next = newNode;
+          newNode.prev = this.tail;
+          this.tail = newNode;
+        }
+        this.length++;
+        return newNode;
+      }
+
+      find(productId) {
+        let curr = this.head;
+        while (curr) {
+          if (curr.product.id === productId) {
+            return curr;
+          }
+          curr = curr.next;
+        }
+        return null;
+      }
+
+      updateQuantity(productId, newQty) {
+        const node = this.find(productId);
+        if (!node) return null;
+
+        if (newQty <= 0) {
+          return this.remove(productId);
+        } else {
+          const oldQty = node.quantity;
+          node.quantity = newQty;
+          return { node, oldQty, newQty };
+        }
+      }
+
+      remove(productId) {
+        const node = this.find(productId);
+        if (!node) return null;
+
+        if (node === this.head && node === this.tail) {
+          this.head = null;
+          this.tail = null;
+        } else if (node === this.head) {
+          this.head = node.next;
+          if (this.head) this.head.prev = null;
+        } else if (node === this.tail) {
+          this.tail = node.prev;
+          if (this.tail) this.tail.next = null;
+        } else {
+          node.prev.next = node.next;
+          node.next.prev = node.prev;
+        }
+
+        node.prev = null;
+        node.next = null;
+        this.length--;
+        return node;
+      }
+
+      toArray() {
+        const items = [];
+        let curr = this.head;
+        while (curr) {
+          items.push({
+            id: curr.id,
+            product: curr.product,
+            quantity: curr.quantity,
+            subtotal: curr.subtotal
+          });
+          curr = curr.next;
+        }
+        return items;
+      }
+
+      clear() {
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+      }
+
+      getTotalCost() {
+        let total = 0;
+        let curr = this.head;
+        while (curr) {
+          total += curr.subtotal;
+          curr = curr.next;
+        }
+        return total;
+      }
+
+      getTotalItemsCount() {
+        let count = 0;
+        let curr = this.head;
+        while (curr) {
+          count += curr.quantity;
+          curr = curr.next;
+        }
+        return count;
+      }
+    }
+
+    /**
+     * 3. UNDO STACK IMPLEMENTATION (LIFO Action History)
+     * Encapsulates state mutations and allows reversible operations.
+     */
+    class UndoStack {
+      constructor(maxDepth = 30) {
+        this.frames = [];
+        this.maxDepth = maxDepth;
+      }
+
+      push(action) {
+        if (this.frames.length >= this.maxDepth) {
+          this.frames.shift();
+        }
+        this.frames.push({
+          ...action,
+          timestamp: new Date().toLocaleTimeString()
+        });
+      }
+
+      pop() {
+        return this.frames.pop();
+      }
+
+      peek() {
+        return this.frames.length > 0 ? this.frames[this.frames.length - 1] : null;
+      }
+
+      isEmpty() {
+        return this.frames.length === 0;
+      }
+
+      clear() {
+        this.frames = [];
+      }
+    }
+
+    /**
+     * 4. ORDER PROCESSING QUEUE IMPLEMENTATION (FIFO Pipeline)
+     * Manages customer orders through a FIFO fulfillment lifecycle.
+     */
+    class OrderQueue {
+      constructor() {
+        this.items = [];
+        this.orderSeq = 1001;
+      }
+
+      enqueue(orderData) {
+        const stages = ['Order Placed', 'Preparing Dispatch', 'Out for Delivery', 'Delivered'];
+        const order = {
+          orderId: `ORD-${this.orderSeq++}`,
+          date: new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }),
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          items: [...orderData.items],
+          subtotal: orderData.subtotal,
+          discount: orderData.discount,
+          taxes: orderData.taxes,
+          grandTotal: orderData.grandTotal,
+          statusIndex: 0,
+          status: stages[0]
+        };
+        this.items.push(order);
+        return order;
+      }
+
+      dequeue() {
+        return this.items.shift();
+      }
+
+      peek() {
+        return this.items.length > 0 ? this.items[0] : null;
+      }
+
+      size() {
+        return this.items.length;
+      }
+
+      advanceOrder(orderId) {
+        const stages = ['Order Placed', 'Preparing Dispatch', 'Out for Delivery', 'Delivered'];
+        const order = this.items.find(o => o.orderId === orderId);
+        if (!order) return null;
+        if (order.statusIndex < stages.length - 1) {
+          order.statusIndex++;
+          order.status = stages[order.statusIndex];
+        }
+        return order;
+      }
+
+      advanceFrontOrder() {
+        if (this.items.length === 0) return null;
+        return this.advanceOrder(this.items[0].orderId);
+      }
+
+      getAll() {
+        return [...this.items];
+      }
+    }
+
+    /**
+     * 5. SORTING ALGORITHMS ENGINE (QuickSort & MergeSort)
+     */
+    class SortingEngine {
+      static quickSort(items, comparator) {
+        const arr = [...items];
+        function partition(low, high) {
+          const pivot = arr[high];
+          let i = low - 1;
+          for (let j = low; j < high; j++) {
+            if (comparator(arr[j], pivot) <= 0) {
+              i++;
+              [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+          }
+          [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+          return i + 1;
+        }
+
+        function sort(low, high) {
+          if (low < high) {
+            const pi = partition(low, high);
+            sort(low, pi - 1);
+            sort(pi + 1, high);
+          }
+        }
+
+        sort(0, arr.length - 1);
+        return arr;
+      }
+
+      static mergeSort(items, comparator) {
+        function merge(left, right) {
+          const result = [];
+          let i = 0, j = 0;
+          while (i < left.length && j < right.length) {
+            if (comparator(left[i], right[j]) <= 0) {
+              result.push(left[i++]);
+            } else {
+              result.push(right[j++]);
+            }
+          }
+          return result.concat(left.slice(i)).concat(right.slice(j));
+        }
+
+        function sort(arr) {
+          if (arr.length <= 1) return arr;
+          const mid = Math.floor(arr.length / 2);
+          const left = sort(arr.slice(0, mid));
+          const right = sort(arr.slice(mid));
+          return merge(left, right);
+        }
+
+        return sort([...items]);
+      }
+    }
+
+    /**
+     * 6. APPLICATION CONTROLLER (ECommerceApp)
+     * Coordinates the clean UI with internal DSA structures.
+     */
+    class ECommerceApp {
+      constructor() {
+        // High quality product collection with realistic pricing & specs
+        this.initialCatalog = [
+          { id: 'P101', name: 'Precision Wireless Mouse', category: 'Peripherals', price: 600, originalPrice: 999, stock: 15, rating: 4.6, reviews: 142, icon: 'mouse' },
+          { id: 'P102', name: 'Tactile Mechanical Keyboard', category: 'Peripherals', price: 1500, originalPrice: 2499, stock: 8, rating: 4.9, reviews: 218, icon: 'keyboard' },
+          { id: 'P103', name: 'Aluminum USB-C Hub 7-in-1', category: 'Accessories', price: 400, originalPrice: 799, stock: 22, rating: 4.3, reviews: 89, icon: 'hub' },
+          { id: 'P104', name: 'Noise-Cancelling Studio Headphones', category: 'Audio', price: 3200, originalPrice: 4999, stock: 5, rating: 4.8, reviews: 310, icon: 'headphones' },
+          { id: 'P105', name: 'Ergonomic Memory-Foam Desk Mat', category: 'Accessories', price: 350, originalPrice: 599, stock: 30, rating: 4.4, reviews: 76, icon: 'mousepad' },
+          { id: 'P106', name: 'Ultrawide 34-Inch Curved Display', category: 'Electronics', price: 24999, originalPrice: 32999, stock: 4, rating: 4.9, reviews: 64, icon: 'monitor' },
+          { id: 'P107', name: 'Portable NVMe Solid State Drive 1TB', category: 'Storage', price: 6499, originalPrice: 8999, stock: 12, rating: 4.7, reviews: 195, icon: 'ssd' },
+          { id: 'P108', name: 'Full HD 1080p Streaming Webcam', category: 'Electronics', price: 2100, originalPrice: 2999, stock: 9, rating: 4.5, reviews: 112, icon: 'webcam' },
+          { id: 'P109', name: '65W GaN Compact Fast Charger', category: 'Accessories', price: 1499, originalPrice: 1999, stock: 18, rating: 4.6, reviews: 180, icon: 'charger' },
+          { id: 'P110', name: 'True Wireless Studio Earbuds', category: 'Audio', price: 2499, originalPrice: 3499, stock: 14, rating: 4.5, reviews: 240, icon: 'earbuds' },
+          { id: 'P111', name: 'Eye-Care ScreenBar Monitor Light', category: 'Peripherals', price: 1299, originalPrice: 1899, stock: 7, rating: 4.7, reviews: 92, icon: 'lamp' },
+          { id: 'P112', name: 'High-Speed MicroSDXC Card 256GB', category: 'Storage', price: 1199, originalPrice: 1699, stock: 25, rating: 4.4, reviews: 84, icon: 'sdcard' }
+        ];
+
+        this.catalog = [...this.initialCatalog];
+        this.activeCategory = 'All';
+        this.searchQuery = '';
+        this.activeSortMethod = 'DEFAULT';
+
+        // Internal DSA Class Instances
+        this.cart = new CartDoublyLinkedList();
+        this.undoStack = new UndoStack(30);
+        this.orderQueue = new OrderQueue();
+        
+        // Hash Tables for direct O(1) inventory and coupon lookups
+        this.productHashTable = new HashTable(16);
+        this.stockHashTable = new HashTable(16);
+        this.couponHashTable = new HashTable(16);
+
+        // Preload Hash Tables
+        this.initialCatalog.forEach(p => {
+          this.productHashTable.set(p.id, p);
+          this.stockHashTable.set(p.id, p.stock);
+        });
+
+        // Preload working coupons
+        this.couponHashTable.set('SAVE200', { type: 'FLAT', value: 200, label: '₹200 Flat Savings' });
+        this.couponHashTable.set('CARTELLE', { type: 'PERCENT', value: 20, label: '20% CARTELLE Welcome Offer' });
+        this.couponHashTable.set('FESTIVE15', { type: 'PERCENT', value: 15, label: '15% Off Total' });
+        this.couponHashTable.set('FREESHIP', { type: 'FLAT', value: 100, label: 'Shipping Credit' });
+
+        this.appliedCoupon = null;
+        this.undoBannerTimer = null;
+      }
+
+      init() {
+        this.renderCategoryPills();
+        this.renderCatalog();
+        this.updateCartBadge();
+      }
+
+      // =====================================================================
+      // CATEGORY FILTERING & SEARCH
+      // =====================================================================
+      renderCategoryPills() {
+        const categories = ['All', 'Electronics', 'Peripherals', 'Accessories', 'Audio', 'Storage'];
+        const container = document.getElementById('categoryPillContainer');
+        container.innerHTML = categories.map(cat => {
+          const isActive = this.activeCategory === cat;
+          return `
+            <button 
+              onclick="app.selectCategory('${cat}')"
+              class="px-3.5 py-1.5 rounded-full text-xs font-medium transition shrink-0 ${
+                isActive 
+                  ? 'bg-brandNavy text-white shadow-xs' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }"
+            >
+              ${cat}
+            </button>
+          `;
+        }).join('');
+      }
+
+      selectCategory(cat) {
+        this.activeCategory = cat;
+        this.renderCategoryPills();
+        this.applyFiltersAndSorting();
+      }
+
+      handleSearch(query) {
+        this.searchQuery = query.trim().toLowerCase();
+        const indicator = document.getElementById('activeSearchQueryIndicator');
+        const text = document.getElementById('searchQueryText');
+        if (this.searchQuery) {
+          indicator.classList.remove('hidden');
+          text.textContent = query;
+        } else {
+          indicator.classList.add('hidden');
+        }
+        this.applyFiltersAndSorting();
+      }
+
+      resetFilters() {
+        this.activeCategory = 'All';
+        this.searchQuery = '';
+        this.activeSortMethod = 'DEFAULT';
+        document.getElementById('globalSearchInput').value = '';
+        document.getElementById('sortSelector').value = 'DEFAULT';
+        document.getElementById('activeSearchQueryIndicator').classList.add('hidden');
+        this.renderCategoryPills();
+        this.applyFiltersAndSorting();
+      }
+
+      handleSortChange(val) {
+        this.activeSortMethod = val;
+        this.applyFiltersAndSorting();
+      }
+
+      applyFiltersAndSorting() {
+        // Linear scan / filter
+        let filtered = this.initialCatalog.filter(prod => {
+          const matchCat = this.activeCategory === 'All' || prod.category === this.activeCategory;
+          const matchQuery = !this.searchQuery || 
+            prod.name.toLowerCase().includes(this.searchQuery) ||
+            prod.category.toLowerCase().includes(this.searchQuery);
+          return matchCat && matchQuery;
+        });
+
+        // Sorting using custom sorting engine
+        if (this.activeSortMethod === 'PRICE_ASC') {
+          filtered = SortingEngine.quickSort(filtered, (a, b) => a.price - b.price);
+        } else if (this.activeSortMethod === 'PRICE_DESC') {
+          filtered = SortingEngine.quickSort(filtered, (a, b) => b.price - a.price);
+        } else if (this.activeSortMethod === 'RATING_DESC') {
+          filtered = SortingEngine.mergeSort(filtered, (a, b) => b.rating - a.rating);
+        } else if (this.activeSortMethod === 'NAME_ASC') {
+          filtered.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (this.activeSortMethod === 'NAME_DESC') {
+          filtered.sort((a, b) => b.name.localeCompare(a.name));
+        }
+
+        this.catalog = filtered;
+        this.renderCatalog();
+      }
+
+      // =====================================================================
+      // PRODUCT CATALOG RENDERING
+      // =====================================================================
+      renderCatalog() {
+        const grid = document.getElementById('productGrid');
+        const emptyState = document.getElementById('emptyCatalogState');
+        const badge = document.getElementById('catalogCountBadge');
+
+        badge.textContent = `${this.catalog.length} products`;
+
+        if (this.catalog.length === 0) {
+          grid.innerHTML = '';
+          emptyState.classList.remove('hidden');
+          emptyState.classList.add('flex');
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+        emptyState.classList.remove('flex');
+
+        grid.innerHTML = this.catalog.map(product => {
+          const currentStock = this.stockHashTable.get(product.id) ?? product.stock;
+          const cartItem = this.cart.find(product.id);
+          const inCartQty = cartItem ? cartItem.quantity : 0;
+          const remainingStock = Math.max(0, currentStock - inCartQty);
+          const isOutOfStock = remainingStock === 0;
+
+          return `
+            <div class="bg-white rounded-xl border border-borderSubtle p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow group">
+              <div>
+                <!-- Product Icon / Display Container -->
+                <div class="w-full h-44 rounded-lg bg-slate-50 flex items-center justify-center mb-4 relative overflow-hidden group-hover:bg-slate-100/70 transition-colors">
+                  <div class="w-16 h-16 text-slate-700 group-hover:text-brandNavy transition-transform transform group-hover:scale-105 duration-200">
+                    ${this.getProductSvgIcon(product.icon)}
+                  </div>
+                  
+                  ${product.originalPrice > product.price ? `
+                    <span class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-brandCrimson text-white text-[10px] font-bold rounded uppercase tracking-wider">
+                      Save ₹${product.originalPrice - product.price}
+                    </span>
+                  ` : ''}
+                </div>
+
+                <!-- Category & Title -->
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                  ${product.category}
+                </span>
+                <h3 class="text-sm font-semibold text-slate-900 leading-snug line-clamp-2 min-h-[2.5rem]">
+                  ${product.name}
+                </h3>
+
+                <!-- Ratings -->
+                <div class="flex items-center gap-1.5 mt-2 mb-3">
+                  <div class="flex items-center text-amber-500 text-xs">
+                    ${this.renderStars(product.rating)}
+                  </div>
+                  <span class="text-xs font-semibold text-slate-700">${product.rating.toFixed(1)}</span>
+                  <span class="text-xs text-slate-400">(${product.reviews})</span>
+                </div>
+              </div>
+
+              <!-- Price, Stock & Add to Cart Action -->
+              <div class="pt-3 border-t border-slate-100">
+                <div class="flex items-baseline justify-between mb-3">
+                  <div class="flex items-baseline gap-2">
+                    <span class="text-lg font-bold text-slate-900">₹${product.price.toLocaleString('en-IN')}</span>
+                    ${product.originalPrice > product.price ? `
+                      <span class="text-xs text-slate-400 line-through">₹${product.originalPrice.toLocaleString('en-IN')}</span>
+                    ` : ''}
+                  </div>
+                  
+                  <span class="text-xs font-medium ${
+                    isOutOfStock 
+                      ? 'text-brandCrimson' 
+                      : remainingStock <= 5 
+                        ? 'text-amber-600' 
+                        : 'text-emerald-700'
+                  }">
+                    ${isOutOfStock ? 'Out of stock' : remainingStock <= 5 ? `Only ${remainingStock} left` : 'In stock'}
+                  </span>
+                </div>
+
+                <button 
+                  onclick="app.addToCart('${product.id}')"
+                  ${isOutOfStock ? 'disabled' : ''}
+                  class="w-full py-2.5 px-4 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-2 ${
+                    isOutOfStock 
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                      : inCartQty > 0
+                        ? 'bg-brandNavy text-white hover:bg-brandNavyLight'
+                        : 'bg-brandCrimson hover:bg-brandCrimsonHover text-white shadow-xs'
+                  }"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  </svg>
+                  ${inCartQty > 0 ? `Add Another (${inCartQty} in bag)` : 'Add to Bag'}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      renderStars(rating) {
+        const full = Math.floor(rating);
+        let s = '';
+        for (let i = 0; i < full; i++) {
+          s += `<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`;
+        }
+        return s;
+      }
+
+      getProductSvgIcon(type) {
+        switch (type) {
+          case 'mouse':
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2C8.686 2 6 4.686 6 8v8c0 3.314 2.686 6 6 6s6-2.686 6-6V8c0-3.314-2.686-6-6-6zm0 4v4"/></svg>`;
+          case 'keyboard':
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm5 3h.01M12 10h.01M16 10h.01M8 14h8"/></svg>`;
+          case 'headphones':
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 00-14 0m0 0v5a3 3 0 003 3h1a1 1 0 001-1v-5a1 1 0 00-1-1H5m14 0v5a3 3 0 01-3 3h-1a1 1 0 01-1-1v-5a1 1 0 011-1h4"/></svg>`;
+          case 'hub':
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16M9 6v12M15 6v12"/></svg>`;
+          case 'monitor':
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l2 1h2l2-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`;
+          case 'ssd':
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>`;
+          case 'webcam':
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>`;
+          case 'charger':
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`;
+          case 'earbuds':
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M16 12h.01M12 18a6 6 0 100-12 6 6 0 000 12z"/></svg>`;
+          case 'lamp':
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>`;
+          default:
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`;
+        }
+      }
+
+      // =====================================================================
+      // CART OPERATIONS & DATA STRUCTURES
+      // =====================================================================
+      addToCart(productId) {
+        const product = this.productHashTable.get(productId);
+        if (!product) return;
+
+        const currentStock = this.stockHashTable.get(productId) ?? product.stock;
+        const existingNode = this.cart.find(productId);
+        const inCartQty = existingNode ? existingNode.quantity : 0;
+
+        if (inCartQty >= currentStock) {
+          this.showToast(`Maximum available stock reached (${currentStock} units)`, 'warning');
+          return;
+        }
+
+        if (existingNode) {
+          const oldQty = existingNode.quantity;
+          existingNode.quantity += 1;
+          this.undoStack.push({
+            type: 'QTY_CHANGE',
+            productId: product.id,
+            productName: product.name,
+            oldQty: oldQty,
+            newQty: existingNode.quantity,
+            description: `Updated quantity for ${product.name}`
+          });
+        } else {
+          this.cart.append(product, 1);
+          this.undoStack.push({
+            type: 'ADD',
+            productId: product.id,
+            productName: product.name,
+            product: product,
+            quantity: 1,
+            description: `Added ${product.name} to bag`
+          });
+        }
+
+        this.showToast(`Added "${product.name}" to bag`);
+        this.triggerUndoBanner(`Added "${product.name}" to bag`);
+        this.syncCartState();
+      }
+
+      updateCartQuantity(productId, delta) {
+        const product = this.productHashTable.get(productId);
+        const node = this.cart.find(productId);
+        if (!node) return;
+
+        const currentStock = this.stockHashTable.get(productId) ?? product.stock;
+        const newQty = node.quantity + delta;
+
+        if (newQty > currentStock) {
+          this.showToast(`Only ${currentStock} units available in stock`, 'warning');
+          return;
+        }
+
+        const oldQty = node.quantity;
+        if (newQty <= 0) {
+          this.cart.remove(productId);
+          this.undoStack.push({
+            type: 'REMOVE',
+            productId: product.id,
+            productName: product.name,
+            product: product,
+            quantity: oldQty,
+            description: `Removed ${product.name} from bag`
+          });
+          this.triggerUndoBanner(`Removed "${product.name}"`);
+        } else {
+          node.quantity = newQty;
+          this.undoStack.push({
+            type: 'QTY_CHANGE',
+            productId: product.id,
+            productName: product.name,
+            oldQty: oldQty,
+            newQty: newQty,
+            description: `Changed quantity of ${product.name}`
+          });
+          this.triggerUndoBanner(`Updated quantity for "${product.name}"`);
+        }
+
+        this.syncCartState();
+      }
+
+      removeCartItem(productId) {
+        const node = this.cart.find(productId);
+        if (!node) return;
+
+        const product = node.product;
+        const oldQty = node.quantity;
+        this.cart.remove(productId);
+
+        this.undoStack.push({
+          type: 'REMOVE',
+          productId: product.id,
+          productName: product.name,
+          product: product,
+          quantity: oldQty,
+          description: `Removed ${product.name} from bag`
+        });
+
+        this.triggerUndoBanner(`Removed "${product.name}"`);
+        this.syncCartState();
+      }
+
+      // =====================================================================
+      // UNDO ENGINE (STACK POP)
+      // =====================================================================
+      undoLastAction() {
+        if (this.undoStack.isEmpty()) {
+          this.showToast('No actions to undo', 'warning');
+          this.dismissUndoBanner();
+          return;
+        }
+
+        const action = this.undoStack.pop();
+        if (!action) return;
+
+        switch (action.type) {
+          case 'ADD':
+            this.cart.remove(action.productId);
+            this.showToast(`Reversed: Removed ${action.productName}`);
+            break;
+          case 'REMOVE':
+            this.cart.append(action.product, action.quantity);
+            this.showToast(`Restored ${action.productName}`);
+            break;
+          case 'QTY_CHANGE':
+            const node = this.cart.find(action.productId);
+            if (node) {
+              node.quantity = action.oldQty;
+            } else {
+              const product = this.productHashTable.get(action.productId);
+              if (product) this.cart.append(product, action.oldQty);
+            }
+            this.showToast(`Reverted quantity for ${action.productName}`);
+            break;
+          case 'CHECKOUT':
+            if (action.savedItems) {
+              this.cart.clear();
+              action.savedItems.forEach(item => {
+                this.cart.append(item.product, item.quantity);
+              });
+              this.showToast('Restored items from checkout');
+            }
+            break;
+        }
+
+        this.dismissUndoBanner();
+        this.syncCartState();
+      }
+
+      triggerUndoBanner(text) {
+        const banner = document.getElementById('undoFloatingBanner');
+        const bannerText = document.getElementById('undoBannerText');
+        const drawerBanner = document.getElementById('drawerUndoBanner');
+        const drawerText = document.getElementById('drawerUndoText');
+
+        bannerText.textContent = text;
+        banner.classList.remove('hidden');
+
+        if (drawerBanner) {
+          drawerText.textContent = text;
+          drawerBanner.classList.remove('hidden');
+        }
+
+        if (this.undoBannerTimer) clearTimeout(this.undoBannerTimer);
+        this.undoBannerTimer = setTimeout(() => {
+          this.dismissUndoBanner();
+        }, 5000);
+      }
+
+      dismissUndoBanner() {
+        document.getElementById('undoFloatingBanner').classList.add('hidden');
+        document.getElementById('drawerUndoBanner').classList.add('hidden');
+      }
+
+      // =====================================================================
+      // STATE & DRAWER SYNC
+      // =====================================================================
+      syncCartState() {
+        this.renderCatalog();
+        this.updateCartBadge();
+        this.renderCartDrawer();
+        this.renderBillingSummary();
+      }
+
+      updateCartBadge() {
+        const count = this.cart.getTotalItemsCount();
+        const badge = document.getElementById('cartBadgeCount');
+        badge.textContent = count;
+      }
+
+      openCartDrawer() {
+        const overlay = document.getElementById('cartDrawerOverlay');
+        const panel = document.getElementById('cartDrawerPanel');
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+          overlay.classList.remove('opacity-0');
+          panel.classList.remove('translate-x-full');
+        }, 10);
+        this.syncCartState();
+      }
+
+      closeCartDrawer() {
+        const overlay = document.getElementById('cartDrawerOverlay');
+        const panel = document.getElementById('cartDrawerPanel');
+        panel.classList.add('translate-x-full');
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+        }, 300);
+      }
+
+      renderCartDrawer() {
+        const list = document.getElementById('cartItemList');
+        const emptyState = document.getElementById('cartEmptyState');
+        const subtitle = document.getElementById('cartItemSubtitle');
+        const checkoutBtn = document.getElementById('checkoutButton');
+
+        const totalItems = this.cart.getTotalItemsCount();
+        subtitle.textContent = `${totalItems} ${totalItems === 1 ? 'item' : 'items'}`;
+
+        if (this.cart.length === 0) {
+          list.innerHTML = '';
+          list.classList.add('hidden');
+          emptyState.classList.remove('hidden');
+          checkoutBtn.disabled = true;
+          return;
+        }
+
+        list.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+        checkoutBtn.disabled = false;
+
+        const nodes = this.cart.toArray();
+        list.innerHTML = nodes.map(node => {
+          return `
+            <div class="flex items-center justify-between p-3 rounded-lg border border-borderSubtle bg-white hover:border-slate-300 transition">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-700 shrink-0">
+                  <div class="w-6 h-6">
+                    ${this.getProductSvgIcon(node.product.icon)}
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-xs font-semibold text-slate-900 line-clamp-1">${node.product.name}</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    ₹${node.product.price.toLocaleString('en-IN')} × ${node.quantity}
+                  </p>
+                  <p class="text-xs font-bold text-slate-900 mt-0.5">
+                    ₹${node.subtotal.toLocaleString('en-IN')}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Quantity Controls & Remove -->
+              <div class="flex items-center gap-2">
+                <div class="flex items-center border border-slate-200 rounded-md">
+                  <button 
+                    onclick="app.updateCartQuantity('${node.product.id}', -1)"
+                    class="w-6 h-6 flex items-center justify-center text-slate-600 hover:bg-slate-100 text-xs font-semibold rounded-l"
+                  >
+                    -
+                  </button>
+                  <span class="w-6 text-center text-xs font-semibold text-slate-900">${node.quantity}</span>
+                  <button 
+                    onclick="app.updateCartQuantity('${node.product.id}', 1)"
+                    class="w-6 h-6 flex items-center justify-center text-slate-600 hover:bg-slate-100 text-xs font-semibold rounded-r"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <button 
+                  onclick="app.removeCartItem('${node.product.id}')"
+                  class="p-1 text-slate-400 hover:text-brandCrimson transition ml-1"
+                  title="Remove from bag"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // =====================================================================
+      // COUPON VALIDATION & BILLING BREAKDOWN
+      // =====================================================================
+      applyQuickCoupon(code) {
+        document.getElementById('couponInput').value = code;
+        this.applyCoupon();
+      }
+
+      applyCoupon() {
+        const input = document.getElementById('couponInput');
+        const feedback = document.getElementById('couponFeedback');
+        const code = input.value.trim().toUpperCase();
+
+        if (!code) {
+          this.appliedCoupon = null;
+          feedback.classList.remove('hidden', 'text-emerald-600');
+          feedback.classList.add('text-brandCrimson');
+          feedback.textContent = 'Please enter a coupon code.';
+          this.renderBillingSummary();
+          return;
+        }
+
+        const coupon = this.couponHashTable.get(code);
+        if (coupon) {
+          this.appliedCoupon = { code, ...coupon };
+          feedback.classList.remove('hidden', 'text-brandCrimson');
+          feedback.classList.add('text-emerald-600');
+          feedback.textContent = `Applied coupon: ${coupon.label}`;
+          this.showToast(`Promotion "${code}" applied!`);
+        } else {
+          this.appliedCoupon = null;
+          feedback.classList.remove('hidden', 'text-emerald-600');
+          feedback.classList.add('text-brandCrimson');
+          feedback.textContent = 'Invalid promo code. Please check and try again.';
+          this.showToast('Invalid promo code', 'warning');
+        }
+
+        this.renderBillingSummary();
+      }
+
+      renderBillingSummary() {
+        const subtotal = this.cart.getTotalCost();
+        let discount = 0;
+
+        if (this.appliedCoupon && subtotal > 0) {
+          if (this.appliedCoupon.type === 'FLAT') {
+            discount = Math.min(subtotal, this.appliedCoupon.value);
+          } else if (this.appliedCoupon.type === 'PERCENT') {
+            discount = Math.round((subtotal * this.appliedCoupon.value) / 100);
+          }
+        }
+
+        const taxable = Math.max(0, subtotal - discount);
+        const taxes = Math.round(taxable * 0.18);
+        const grandTotal = taxable + taxes;
+
+        document.getElementById('billSubtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+        document.getElementById('billDiscount').textContent = `- ₹${discount.toLocaleString('en-IN')}`;
+        document.getElementById('billTaxes').textContent = `₹${taxes.toLocaleString('en-IN')}`;
+        document.getElementById('billGrandTotal').textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
+
+        const couponTag = document.getElementById('appliedCouponTag');
+        if (this.appliedCoupon && discount > 0) {
+          couponTag.classList.remove('hidden');
+          couponTag.textContent = this.appliedCoupon.code;
+        } else {
+          couponTag.classList.add('hidden');
+        }
+      }
+
+      // =====================================================================
+      // CHECKOUT SIMULATION (ORDER QUEUE FIFO)
+      // =====================================================================
+      initiateCheckout() {
+        if (this.cart.length === 0) return;
+
+        const subtotal = this.cart.getTotalCost();
+        let discount = 0;
+        if (this.appliedCoupon) {
+          discount = this.appliedCoupon.type === 'FLAT' 
+            ? Math.min(subtotal, this.appliedCoupon.value)
+            : Math.round((subtotal * this.appliedCoupon.value) / 100);
+        }
+        const taxes = Math.round(Math.max(0, subtotal - discount) * 0.18);
+        const grandTotal = Math.max(0, subtotal - discount) + taxes;
+        const cartSnapshot = this.cart.toArray();
+
+        // Enqueue order to FIFO OrderQueue
+        const order = this.orderQueue.enqueue({
+          items: cartSnapshot,
+          subtotal,
+          discount,
+          taxes,
+          grandTotal
+        });
+
+        // Record checkout in Undo Stack
+        this.undoStack.push({
+          type: 'CHECKOUT',
+          orderId: order.orderId,
+          savedItems: cartSnapshot,
+          description: `Order #${order.orderId} placed`
+        });
+
+        // Clear cart
+        this.cart.clear();
+        this.appliedCoupon = null;
+        document.getElementById('couponInput').value = '';
+        document.getElementById('couponFeedback').classList.add('hidden');
+
+        this.closeCartDrawer();
+
+        // Update modal details
+        document.getElementById('modalOrderId').textContent = `#${order.orderId}`;
+        document.getElementById('modalOrderAmount').textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
+        document.getElementById('modalOrderItemsCount').textContent = `${cartSnapshot.length} unique products`;
+
+        const modal = document.getElementById('checkoutSuccessModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        this.updateOrdersCountBadge();
+        this.syncCartState();
+        this.showToast(`Order #${order.orderId} placed successfully!`);
+      }
+
+      closeSuccessModal() {
+        const modal = document.getElementById('checkoutSuccessModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      closeSuccessModalAndOpenOrders() {
+        this.closeSuccessModal();
+        this.openOrdersModal();
+      }
+
+      // =====================================================================
+      // ORDERS TRACKING MODAL (FIFO Queue Status)
+      // =====================================================================
+      openOrdersModal() {
+        const overlay = document.getElementById('ordersModalOverlay');
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+        this.renderOrdersList();
+      }
+
+      closeOrdersModal(e) {
+        const overlay = document.getElementById('ordersModalOverlay');
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+      }
+
+      updateOrdersCountBadge() {
+        const badge = document.getElementById('headerOrdersCount');
+        const count = this.orderQueue.size();
+        if (count > 0) {
+          badge.classList.remove('hidden');
+          badge.textContent = count;
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+
+      renderOrdersList() {
+        const container = document.getElementById('ordersListContainer');
+        const orders = this.orderQueue.getAll();
+
+        if (orders.length === 0) {
+          container.innerHTML = `
+            <div class="py-12 text-center text-slate-400">
+              <svg class="w-12 h-12 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+              <p class="text-sm font-semibold text-slate-700">No active orders</p>
+              <p class="text-xs text-slate-400 mt-0.5">Placed orders will appear here with live delivery tracking.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const stages = ['Order Placed', 'Preparing Dispatch', 'Out for Delivery', 'Delivered'];
+
+        container.innerHTML = orders.map(order => {
+          return `
+            <div class="p-4 rounded-xl border border-borderSubtle bg-slate-50 space-y-3">
+              <div class="flex items-center justify-between text-xs pb-2 border-b border-slate-200">
+                <div>
+                  <span class="font-bold text-slate-900">#${order.orderId}</span>
+                  <span class="text-slate-400 ml-2">${order.date} at ${order.time}</span>
+                </div>
+                <span class="font-bold text-brandCrimson">₹${order.grandTotal.toLocaleString('en-IN')}</span>
+              </div>
+
+              <!-- Status Progress Tracker -->
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-slate-500 font-medium">Status:</span>
+                  <span class="font-semibold text-slate-800">${order.status}</span>
+                </div>
+                <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden flex">
+                  ${stages.map((stg, sIdx) => `
+                    <div class="flex-1 ${sIdx <= order.statusIndex ? 'bg-emerald-600' : 'bg-slate-200'} border-r border-white last:border-none"></div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <!-- Order items summary -->
+              <div class="text-[11px] text-slate-500 flex justify-between">
+                <span>${order.items.length} ${order.items.length === 1 ? 'product' : 'products'} ordered</span>
+                ${order.status !== 'Delivered' ? `
+                  <button 
+                    onclick="app.advanceSingleOrder('${order.orderId}')" 
+                    class="text-brandNavy font-semibold hover:underline"
+                  >
+                    Advance Status ➔
+                  </button>
+                ` : `
+                  <span class="text-emerald-600 font-semibold">✓ Delivered</span>
+                `}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      advanceSingleOrder(orderId) {
+        const updated = this.orderQueue.advanceOrder(orderId);
+        if (updated) {
+          this.showToast(`Order #${updated.orderId} updated to "${updated.status}"`);
+          this.renderOrdersList();
+        }
+      }
+
+      simulateAdvanceNextOrder() {
+        const updated = this.orderQueue.advanceFrontOrder();
+        if (updated) {
+          this.showToast(`Order #${updated.orderId} updated to "${updated.status}"`);
+          this.renderOrdersList();
+        } else {
+          this.showToast('No orders in fulfillment queue to advance', 'warning');
+        }
+      }
+
+      // =====================================================================
+      // TOAST NOTIFICATIONS
+      // =====================================================================
+      showToast(msg, type = 'success') {
+        const toast = document.getElementById('toastNotification');
+        const text = document.getElementById('toastMessage');
+        const icon = document.getElementById('toastIcon');
+
+        text.textContent = msg;
+        if (type === 'warning') {
+          icon.className = 'w-2 h-2 rounded-full bg-amber-500 shrink-0';
+        } else {
+          icon.className = 'w-2 h-2 rounded-full bg-emerald-500 shrink-0';
+        }
+
+        toast.classList.remove('translate-x-10', 'opacity-0');
+        setTimeout(() => {
+          toast.classList.add('translate-x-10', 'opacity-0');
+        }, 3000);
+      }
+    }
+
+    // Initialize application on page load
+    const app = new ECommerceApp();
+    window.app = app;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      app.init();
+    });
+  </script>
+</body>
+</html>

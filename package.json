@@ -1,0 +1,21 @@
+{
+  "name": "cartelle-store",
+  "version": "1.0.0",
+  "description": "CARTELLE — Your World. Your Cart. (E-Commerce Store & Data Structures Project)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "echo 'No build step required for static frontend'"
+  },
+  "keywords": [
+    "ecommerce",
+    "shopping-cart",
+    "data-structures",
+    "javascript"
+  ],
+  "author": "CARTELLE",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
